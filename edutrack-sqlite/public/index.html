@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTrack | Студенттер қатысуын тіркеу жүйесі</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Бүйірлік меню -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>EduTrack</span>
+                <span class="db-badge">SQLite</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Басты бет</span>
+                </div>
+                <div class="nav-item" data-page="students">
+                    <i class="fas fa-users"></i>
+                    <span>Студенттер</span>
+                </div>
+                <div class="nav-item" data-page="subjects">
+                    <i class="fas fa-book"></i>
+                    <span>Пәндер</span>
+                </div>
+                <div class="nav-item" data-page="attendance">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Қатысу</span>
+                </div>
+                <div class="nav-item" data-page="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Есептер</span>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-database"></i>
+                    <span>SQLite қосылды</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Негізгі контент -->
+        <main class="main-content">
+            <!-- Жоғарғы панель -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1 id="currentPageTitle">Басты бет</h1>
+                    <p id="currentDate"></p>
+                </div>
+            </header>
+
+            <!-- Контент аймағы -->
+            <div class="content-area">
+                <!-- ========== БАСТЫ БЕТ ========== -->
+                <div id="dashboard-page" class="page active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalStudents">0</h3>
+                                <p>Студенттер</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalSubjects">0</h3>
+                                <p>Пәндер</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalAttendance">0</h3>
+                                <p>Қатысулар</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="avgAttendance">0%</h3>
+                                <p>Орташа қатысу</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recent-activities">
+                        <h3><i class="fas fa-history"></i> Соңғы белсенділік</h3>
+                        <div id="recentActivities" class="activities-list">
+                            <!-- Соңғы әрекеттер динамикалық түрде көрсетіледі -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== СТУДЕНТТЕР БЕТІ ========== -->
+                <div id="students-page" class="page">
+                    <div class="page-header">
+                        <h2><i class="fas fa-users"></i> Студенттерді басқару</h2>
+                        <button class="btn btn-primary" id="addStudentBtn">
+                            <i class="fas fa-user-plus"></i>
+                            Жаңа студент
+                        </button>
+                    </div>
+
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchStudent" placeholder="Студент іздеу (аты, email, тобы бойынша)...">
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table" id="studentsTable">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Студент</th>
+                                    <th>Email</th>
+                                    <th>Топ</th>
+                                    <th>Қосылған күн</th>
+                                    <th>Әрекеттер</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsList"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ========== ПӘНДЕР БЕТІ ========== -->
+                <div id="subjects-page" class="page">
+                    <div class="page-header">
+                        <h2><i class="fas fa-book"></i> Пәндерді басқару</h2>
+                        <button class="btn btn-primary" id="addSubjectBtn">
+                            <i class="fas fa-book-medical"></i>
+                            Жаңа пән
+                        </button>
+                    </div>
+
+                    <div class="subjects-stats-cards">
+                        <div class="stat-mini-card">
+                            <i class="fas fa-book-open"></i>
+                            <span id="totalSubjectsCount">0</span>
+                            <label>Барлық пән</label>
+                        </div>
+                        <div class="stat-mini-card">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span id="activeSubjectsCount">0</span>
+                            <label>Белсенді пән</label>
+                        </div>
+                    </div>
+
+                    <div class="subjects-grid" id="subjectsGrid"></div>
+                </div>
+
+                <!-- ========== ҚАТЫСУ БЕТІ ========== -->
+                <div id="attendance-page" class="page">
+                    <div class="page-header">
+                        <h2><i class="fas fa-calendar-check"></i> Қатысуды белгілеу</h2>
+                    </div>
+                    
+                    <!-- Фильтрлер -->
+                    <div class="attendance-filters">
+                        <div class="filters-grid">
+                            <div class="filter-item">
+                                <label><i class="fas fa-users"></i> Топ:</label>
+                                <select id="filterGroup" class="filter-select">
+                                    <option value="">Топты таңдаңыз</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-item">
+                                <label><i class="fas fa-book"></i> Пән:</label>
+                                <select id="filterSubject" class="filter-select">
+                                    <option value="">Пәнді таңдаңыз</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-item">
+                                <label><i class="fas fa-calendar-alt"></i> Күн:</label>
+                                <input type="date" id="filterDate" class="filter-date">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Студенттер тізімі (динамикалық) -->
+                    <div id="studentsAttendanceContainer">
+                        <div class="empty-state">
+                            <i class="fas fa-hand-pointer"></i>
+                            <h3>Параметрлерді таңдаңыз</h3>
+                            <p>Топ, пән және күн таңдап, студенттердің қатысуын белгілеңіз</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== ЕСЕПТЕР БЕТІ ========== -->
+                <div id="reports-page" class="page">
+                    <div class="page-header">
+                        <h2><i class="fas fa-chart-bar"></i> Есептер және статистика</h2>
+                        <p>Студенттердің қатысу көрсеткіштерін талдау</p>
+                    </div>
+                    
+                    <div class="reports-container">
+                        <!-- Сол жақ панель - фильтрлер -->
+                        <div class="reports-sidebar">
+                            <h3><i class="fas fa-filter"></i> Фильтрлер</h3>
+                            
+                            <div class="filter-group">
+                                <label><i class="fas fa-users"></i> Топ:</label>
+                                <select id="reportGroup" class="filter-select">
+                                    <option value="all">Барлық топтар</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label><i class="fas fa-user-graduate"></i> Студент:</label>
+                                <select id="reportStudent" class="filter-select">
+                                    <option value="all">Барлық студенттер</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label><i class="fas fa-book"></i> Пән:</label>
+                                <select id="reportSubject" class="filter-select">
+                                    <option value="all">Барлық пәндер</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label><i class="fas fa-calendar-alt"></i> Кезең:</label>
+                                <div class="date-range">
+                                    <input type="date" id="reportStartDate" class="filter-date" placeholder="Басталу күні">
+                                    <input type="date" id="reportEndDate" class="filter-date" placeholder="Аяқталу күні">
+                                </div>
+                            </div>
+
+                            <div class="filter-group">
+                                <label><i class="fas fa-chart-pie"></i> Есеп түрі:</label>
+                                <select id="reportType" class="filter-select">
+                                    <option value="summary">📊 Жиынтық есеп</option>
+                                    <option value="detailed">📋 Толық тізім</option>
+                                    <option value="chart">📈 Графиктік есеп</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-primary btn-block" id="generateReportBtn">
+                                <i class="fas fa-file-alt"></i> Есеп жасау
+                            </button>
+                        </div>
+
+                        <!-- Оң жақ панель - нәтиже -->
+                        <div class="report-result" id="reportResult">
+                            <div class="report-placeholder">
+                                <i class="fas fa-chart-pie"></i>
+                                <h3>Есеп параметрлерін таңдаңыз</h3>
+                                <p>Топ, студент, пән және кезең бойынша есеп жасаңыз</p>
+                                <div class="placeholder-features">
+                                    <span><i class="fas fa-check-circle" style="color: #4cc9f0;"></i> Қатысу статистикасы</span>
+                                    <span><i class="fas fa-clock" style="color: #f8961e;"></i> Кешігу көрсеткіші</span>
+                                    <span><i class="fas fa-times-circle" style="color: #f72585;"></i> Қатыспау себептері</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========== МОДАЛЬДЫ ТЕРЕЗЕЛЕР ========== -->
+    
+    <!-- Студент қосу модалы -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Жаңа студент қосу</h2>
+                <span class="close" id="closeStudentModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Аты-жөні <span class="required">*</span></label>
+                    <input type="text" id="studentName" placeholder="Мысалы: Әбдиева Қарлығаш" required>
+                    <small class="form-text">Толық аты-жөніңізді жазыңыз</small>
+                </div>
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <input type="email" id="studentEmail" placeholder="karlygash@mail.com" required>
+                    <small class="form-text">Бірегей email мекенжайы</small>
+                </div>
+                <div class="form-group">
+                    <label>Тобы <span class="required">*</span></label>
+                    <input type="text" id="studentGroup" placeholder="Мысалы: ИС-201" required>
+                    <small class="form-text">Бір топта бірдей атты студент бола алмайды</small>
+                </div>
+                
+                <div id="groupStudentsList" class="group-students-list" style="display: none;">
+                    <h4>Осы топтағы студенттер:</h4>
+                    <div id="groupStudents"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelStudentBtn">Бас тарту</button>
+                <button class="btn btn-success" id="saveStudentBtn">
+                    <i class="fas fa-save"></i> Сақтау
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пән қосу модалы -->
+    <div id="subjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-book-medical"></i> Жаңа пән қосу</h2>
+                <span class="close" id="closeSubjectModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Пән аты <span class="required">*</span></label>
+                    <input type="text" id="subjectName" placeholder="Мысалы: Бағдарламалау" required>
+                </div>
+                <div class="form-group">
+                    <label>Сипаттама</label>
+                    <textarea id="subjectDescription" rows="4" placeholder="Пән туралы қысқаша..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelSubjectBtn">Бас тарту</button>
+                <button class="btn btn-success" id="saveSubjectBtn">
+                    <i class="fas fa-save"></i> Сақтау
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Қатысу белгілеу модалы -->
+    <div id="attendanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-calendar-plus"></i> Қатысу белгілеу</h2>
+                <span class="close" id="closeAttendanceModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Студент</label>
+                    <select id="attendanceStudent" class="filter-select"></select>
+                </div>
+                <div class="form-group">
+                    <label>Пән</label>
+                    <select id="attendanceSubject" class="filter-select">
+                        <option value="">Пәнді таңдаңыз</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Күн</label>
+                    <input type="date" id="attendanceDate" class="filter-date">
+                </div>
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select id="attendanceStatus" class="filter-select">
+                        <option value="present">✅ Қатысты</option>
+                        <option value="late">⏰ Кешікті</option>
+                        <option value="absent">❌ Қатыспады</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelAttendanceBtn">Бас тарту</button>
+                <button class="btn btn-success" id="saveAttendanceBtn">
+                    <i class="fas fa-check-circle"></i> Белгілеу
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Хабарландыру -->
+    <div id="toast" class="toast"></div>
+    
+    <!-- Жүктеу индикаторы -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <span>Жүктелуде...</span>
+    </div>
+
+    <!-- JavaScript файлдары -->
+    <script src="js/app.js"></script>
+    <script src="js/students.js"></script>
+    <script src="js/subjects.js"></script>
+    <script src="js/attendance.js"></script>
+    <script src="js/reports.js"></script>
+</body>
+</html>
